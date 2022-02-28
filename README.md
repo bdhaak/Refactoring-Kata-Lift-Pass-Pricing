@@ -33,12 +33,13 @@ If you have Docker installed the easiest thing is to use this script, that will 
 
     ./runLocalDatabase.sh
 
-Inject the data with
-
-    mysql -u root -p mysql < ./database/initDatabase.sql
-
 Then head on to the language of your choice and follow the Readme in there.
 Some of the languages have a failing test that you could finish writing.
+
+## Stop 
+In case you want to stop the database, you can stop the MariaDB docker.
+
+    docker stop mariadb
 
 ## Tips
 
