@@ -1,14 +1,21 @@
 package dojo.liftpasspricing;
 
+import spark.Request;
+import spark.Response;
 import spark.Spark;
 
-import static java.lang.Thread.sleep;
 import static spark.Spark.*;
 
 public class LiftPassServer {
 
     public static final int SERVER_PORT = 4567;
     public static final String APPLICATION_JSON = "application/json";
+
+    private final LiftPassService liftPassService;
+
+    public LiftPassServer() {
+        this.liftPassService = new LiftPassService();
+    }
 
     public void start(int port) {
 
@@ -17,54 +24,54 @@ public class LiftPassServer {
         int assignedServerPort = port == 0 ? SERVER_PORT : port;
         Spark.port(assignedServerPort);
 
-        put("/prices", (req, res) -> {
-            int liftPassCost = Integer.parseInt(req.queryParams("cost"));
-            String liftPassType = req.queryParams("type");
+        put("/prices", this::putPrice);
+        get("/prices", (req, res) -> getPrice(req));
+        after((req, res) -> res.type(APPLICATION_JSON));
 
-            LiftPass liftPass = new LiftPass(liftPassCost, liftPassType);
-            new LiftPassService().add(liftPass);
+        System.out.printf(">>> LiftPassPricing Api started on %d%n", assignedServerPort);
+        System.out.printf("you can open http://localhost:%d/prices?type=night&age=23&date=2019-02-18 in a navigator\n"
+                + "and you'll get the price of the list pass for the day.%n", assignedServerPort);
+    }
 
-            res.status(200);
-            return PriceResponse.EMPTY;
-        });
+    private String getPrice(Request req) {
+        Integer age = req.queryParams("age") != null ? Integer.valueOf(req.queryParams("age")) : null;
+        String type = req.queryParams("type");
+        String date = req.queryParams("date");
 
-        get("/prices", (req, res) -> {
-            Integer age = req.queryParams("age") != null ? Integer.valueOf(req.queryParams("age")) : null;
-            String type = req.queryParams("type");
-            String date = req.queryParams("date");
+        LiftPassResponse response;
+        try {
+            LiftPassPrice price = liftPassService.getLiftPassPrice(new CustomerAge(age), type, date);
+            response = new PriceResponse(price);
+        } catch (InvalidCustomerAgeException e) {
+            response = new ErrorResponse(e);
+        }
+        return response.toJSON();
+    }
 
-            LiftPassPrice price;
-            try {
-                price = new LiftPassService().getLiftPassPrice(new CustomerAge(age), type, date);
-            } catch (InvalidCustomerAgeException e) {
-                return new ErrorResponse(e).toJSON();
-            }
-            return new PriceResponse(price).toJSON();
-        });
+    private String putPrice(Request req, Response res) {
+        int liftPassCost = Integer.parseInt(req.queryParams("cost"));
+        String liftPassType = req.queryParams("type");
 
-        after((req, res) -> {
-            res.type(APPLICATION_JSON);
-        });
+        LiftPass liftPass = new LiftPass(liftPassCost, liftPassType);
+        liftPassService.add(liftPass);
 
-        System.out.println(String.format("LiftPassPricing Api started on %d", assignedServerPort));
-        System.out.println(String.format("you can open http://localhost:%d/prices?type=night&age=23&date=2019-02-18 in a navigator\n"
-                + "and you'll get the price of the list pass for the day.", assignedServerPort));
+        res.status(201);
+        return PriceResponse.EMPTY;
     }
 
     public void stop() {
         System.out.println("Stopping Server");
         Spark.stop();
-        try {
-            sleep(300);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        Spark.awaitStop();
     }
 
-    static class PriceResponse{
-        private final LiftPassPrice liftPassPrice;
+    interface LiftPassResponse{
+        String EMPTY = "";
+        String toJSON();
+    }
 
-        public static String EMPTY = "";
+    static class PriceResponse implements LiftPassResponse{
+        private final LiftPassPrice liftPassPrice;
 
         public PriceResponse(LiftPassPrice liftPassPrice) {
             this.liftPassPrice = liftPassPrice;
@@ -75,11 +82,13 @@ public class LiftPassServer {
         }
     }
 
-    static class ErrorResponse{
+    static class ErrorResponse implements LiftPassResponse{
         private final Throwable throwable;
+
         public ErrorResponse(Throwable throwable) {
             this.throwable = throwable;
         }
+
         public String toJSON(){
             return String.format("{ \"error\": \"%s\"}", throwable.getMessage());
         }

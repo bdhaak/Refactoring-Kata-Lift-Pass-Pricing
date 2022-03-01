@@ -31,6 +31,7 @@ public class LiftPassService {
 
     public LiftPassPrice getLiftPassPrice(CustomerAge customerAge, String type, String date) throws InvalidCustomerAgeException {
         assertValidCustomerAge(customerAge);
+
         LiftPass liftPass = liftPassRepository.findBaseByPrice(type);
 
         if (customerAge.isUnderSixYears()) {

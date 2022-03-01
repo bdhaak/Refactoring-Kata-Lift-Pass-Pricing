@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -15,6 +16,7 @@ import io.restassured.specification.RequestSpecification;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+@Tag("IntegrationTest")
 public class LiftPassServerIntegrationTest {
 
     int serverPort;
@@ -30,7 +32,6 @@ public class LiftPassServerIntegrationTest {
 
     public static int findFreePort() throws IOException {
         try (ServerSocket socket = new ServerSocket(0)) {
-//            socket.setReuseAddress(true);
             return socket.getLocalPort();
         }
     }
@@ -44,7 +45,7 @@ public class LiftPassServerIntegrationTest {
                 assertThat().
                 contentType("application/json").
                 assertThat().
-                statusCode(200); // TODO should be 204
+                statusCode(201);
     }
 
     @AfterEach

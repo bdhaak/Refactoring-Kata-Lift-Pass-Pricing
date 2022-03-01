@@ -43,7 +43,7 @@ public class LiftPassRepository {
         try (PreparedStatement stmt = connection.prepareStatement( //
                 "INSERT INTO base_price (type, cost) VALUES (?, ?) " + //
                         "ON DUPLICATE KEY UPDATE cost = ?")) {
-            stmt.setString(1, liftPass.getType());
+            stmt.setString(1, liftPass.getType().toString());
             stmt.setInt(2, liftPass.getCost());
             stmt.setInt(3, liftPass.getCost());
             stmt.execute();
@@ -84,4 +84,5 @@ public class LiftPassRepository {
         }
         return holidaysDates;
     }
+
 }

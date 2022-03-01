@@ -2,17 +2,15 @@ package dojo.liftpasspricing;
 
 public final class LiftPass {
 
-    private static final String TYPE_NIGHT = "night";
-
     private final int cost;
-    private final String type;
+    private final LiftPassType type;
 
     public LiftPass(int cost, String type) {
         this.cost = cost;
-        this.type = type;
+        this.type = LiftPassType.fromValue(type);
     }
 
-    public String getType() {
+    public LiftPassType getType() {
         return type;
     }
 
@@ -21,6 +19,6 @@ public final class LiftPass {
     }
 
     public boolean isNightType() {
-        return type.equals(TYPE_NIGHT);
+        return type.equals(LiftPassType.NIGHT);
     }
 }

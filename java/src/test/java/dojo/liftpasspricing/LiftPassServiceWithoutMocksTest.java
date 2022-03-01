@@ -1,0 +1,144 @@
+package dojo.liftpasspricing;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
+
+public class LiftPassServiceWithoutMocksTest {
+
+    private LiftPassService liftPassService;
+    private DummyRepository repository;
+
+    @BeforeEach
+    void setUp() {
+        repository = new DummyRepository();
+        liftPassService = new LiftPassService(repository);
+    }
+
+    @Test
+    void should_add_liftpass() {
+        var liftPass = new LiftPass(10, "1hour");
+        liftPassService.add(liftPass);
+        List<LiftPass> liftPasses = repository.getLastInserted();
+        assertEquals(1, liftPasses.size());
+    }
+
+    @Test
+    void should_return_free_when_age_is_under_6() throws InvalidCustomerAgeException{
+        repository.add(new LiftPass(10, "1hour"));
+        LiftPassPrice actualLiftPassPrice = liftPassService.getLiftPassPrice(new CustomerAge(5), "1hour", "2019-02-22");
+        assertEquals(new LiftPassPrice(0), actualLiftPassPrice);
+    }
+
+    @Test
+    void should_return_error_when_age_is_undefined()  {
+        InvalidCustomerAgeException exception = assertThrows(InvalidCustomerAgeException.class, () -> {
+            liftPassService.getLiftPassPrice(new CustomerAge(null), "1hour", "2019-02-22");
+        });
+
+        assertEquals(new InvalidCustomerAgeException("Invalid customer age"), exception);
+    }
+
+    @Nested
+    @DisplayName("Tests for getting day time lift pass prices")
+    class NightTime {
+        @Test
+        void should_return_without_discount_when_age_is_under_64() throws InvalidCustomerAgeException{
+            repository.add(new LiftPass(100, "night"));
+            LiftPassPrice actualLiftPassPrice = liftPassService.getLiftPassPrice(new CustomerAge(12), "night", "2019-02-22");
+            assertEquals(new LiftPassPrice(100), actualLiftPassPrice);
+        }
+
+        @Test
+        void should_return_with_60_percent_discount_when_age_is_above_64() throws InvalidCustomerAgeException{
+            repository.add(new LiftPass(100, "night"));
+            LiftPassPrice actualLiftPassPrice = liftPassService.getLiftPassPrice(new CustomerAge(67), "night", "2019-02-22");
+            assertEquals(new LiftPassPrice(40), actualLiftPassPrice);
+        }
+    }
+
+    @Nested
+    @DisplayName("Tests for getting day time lift pass prices")
+    class DayTime {
+
+        @Test
+        void should_return_with_30_percent_discount_when_age_is_under_15() throws InvalidCustomerAgeException{
+            repository.add(new LiftPass(100, "1hour"));
+            LiftPassPrice actualLiftPassPrice = liftPassService.getLiftPassPrice(new CustomerAge(12), "1hour", "2019-02-22");
+            assertEquals(new LiftPassPrice(70), actualLiftPassPrice);
+        }
+
+        @Test
+        void should_return_with_25_percent_discount_when_age_is_older_than_64() throws InvalidCustomerAgeException{
+            repository.add(new LiftPass(100, "1hour"));
+            LiftPassPrice actualLiftPassPrice = liftPassService.getLiftPassPrice(new CustomerAge(67), "1hour", "2019-02-22");
+            assertEquals(new LiftPassPrice(75), actualLiftPassPrice);
+        }
+
+        @Test
+        void should_return_with_51_percent_discount_when_age_is_older_than_64_and_is_monday() throws InvalidCustomerAgeException{
+            repository.add(new LiftPass(100, "1hour"));
+            LiftPassPrice actualLiftPassPrice = liftPassService.getLiftPassPrice(new CustomerAge(67), "1hour", "2022-02-21");
+            assertEquals(new LiftPassPrice(49), actualLiftPassPrice);
+        }
+
+        @Test
+        void should_return_with_35_percent_discount_when_no_holiday_but_monday() throws InvalidCustomerAgeException{
+            repository.add(new LiftPass(100, "1hour"));
+            LiftPassPrice actualLiftPassPrice = liftPassService.getLiftPassPrice(new CustomerAge(25), "1hour", "2022-02-28");
+            assertEquals(new LiftPassPrice(65), actualLiftPassPrice);
+        }
+
+        @Test
+        void should_return_without_discount_when_holiday_but_not_monday() throws ParseException, InvalidCustomerAgeException {
+            repository.add(new LiftPass(100, "1hour"));
+            LiftPassPrice actualLiftPassPrice = liftPassService.getLiftPassPrice(new CustomerAge(25), "1hour", "2022-02-22");
+            assertEquals(new LiftPassPrice(100), actualLiftPassPrice);
+        }
+
+        @Test
+        void should_return_regular_price_without_discounts() throws InvalidCustomerAgeException{
+            repository.add(new LiftPass(100, "1hour"));
+            LiftPassPrice actualLiftPassPrice = liftPassService.getLiftPassPrice(new CustomerAge(22), "1hour", "2019-02-22");
+            assertEquals(new LiftPassPrice(100), actualLiftPassPrice);
+        }
+    }
+
+    private static class DummyRepository extends LiftPassRepository {
+        private final List<LiftPass> liftPasses = new ArrayList<>();
+        @Override
+        public void add(LiftPass liftPass) {
+            liftPasses.add(liftPass);
+        }
+
+        @Override
+        public LiftPass findBaseByPrice(String type) {
+            return liftPasses.get(0);
+        }
+
+        @Override
+        public List<Date> findAllHolidaysDates() {
+            Calendar calendar = Calendar.getInstance();
+            try {
+                calendar.setTime(new SimpleDateFormat("yyyy-MM-dd").parse("2022-02-22"));
+            } catch (ParseException e) { e.printStackTrace(); }
+            return Collections.singletonList(calendar.getTime());
+        }
+
+        public List<LiftPass> getLastInserted() {
+            return liftPasses;
+        }
+    }
+}
