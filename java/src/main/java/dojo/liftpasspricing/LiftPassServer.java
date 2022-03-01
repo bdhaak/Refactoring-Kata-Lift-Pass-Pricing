@@ -17,6 +17,14 @@ public class LiftPassServer {
         this.liftPassService = new LiftPassService(new MysqlLiftPassRepository());
     }
 
+    private LiftPassServer(LiftPassService liftPassService) {
+        this.liftPassService = liftPassService;
+    }
+
+    public static LiftPassServer nullable() {
+        return new LiftPassServer(new LiftPassService(new InMemoryLiftPassRepository()));
+    }
+
     public void start(int port) {
 
         System.out.println("Starting Server");
@@ -33,7 +41,7 @@ public class LiftPassServer {
                 + "and you'll get the price of the list pass for the day.%n", assignedServerPort);
     }
 
-    private String getPrice(Request req) {
+    public String getPrice(Request req) {
         Integer age = req.queryParams("age") != null ? Integer.valueOf(req.queryParams("age")) : null;
         String type = req.queryParams("type");
         String date = req.queryParams("date");
@@ -48,7 +56,7 @@ public class LiftPassServer {
         return response.toJSON();
     }
 
-    private String putPrice(Request req, Response res) {
+    public String putPrice(Request req, Response res) {
         int liftPassCost = Integer.parseInt(req.queryParams("cost"));
         String liftPassType = req.queryParams("type");
 
