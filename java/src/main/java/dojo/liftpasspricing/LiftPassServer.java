@@ -14,7 +14,7 @@ public class LiftPassServer {
     private final LiftPassService liftPassService;
 
     public LiftPassServer() {
-        this.liftPassService = new LiftPassService();
+        this.liftPassService = new LiftPassService(new MysqlLiftPassRepository());
     }
 
     public void start(int port) {

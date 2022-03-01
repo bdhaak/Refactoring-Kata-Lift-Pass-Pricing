@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Collections;
 
@@ -22,7 +23,7 @@ public class LiftPassServiceTest {
     private LiftPassService liftPassService;
 
     @Mock
-    private LiftPassRepository repository;
+    private MysqlLiftPassRepository repository;
 
     @BeforeEach
     void setUp() {
@@ -115,7 +116,7 @@ public class LiftPassServiceTest {
             when(repository.findBaseByPrice(anyString())).thenReturn(liftPass);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(new SimpleDateFormat("yyyy-MM-dd").parse("2022-02-22"));
-            when(repository.findAllHolidaysDates()).thenReturn(Collections.singletonList(calendar.getTime()));
+            when(repository.findAllHolidaysDates()).thenReturn(Collections.singletonList(calendar.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
             LiftPassPrice actualLiftPassPrice = liftPassService.getLiftPassPrice(new CustomerAge(25), "1hour", "2022-02-22");
             assertEquals(new LiftPassPrice(100), actualLiftPassPrice);
         }

@@ -3,6 +3,8 @@ package dojo.liftpasspricing;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -10,16 +12,12 @@ import java.util.List;
 public class LiftPassService {
 
     private static final DateFormat ISO_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+
     private static final double PERCENT_70 = .7;
     private static final double PERCENT_40 = .4;
-
     public static final double PERCENT_75 = .75;
 
     private final LiftPassRepository liftPassRepository;
-
-    public LiftPassService() {
-        this(new LiftPassRepository());
-    }
 
     public LiftPassService(LiftPassRepository liftPassRepository) {
         this.liftPassRepository = liftPassRepository;
@@ -113,20 +111,14 @@ public class LiftPassService {
     private boolean isHoliday(String date) {
         if (date == null) return false;
 
-        List<Date> holidaysDates = liftPassRepository.findAllHolidaysDates();
-        for (Date holiday : holidaysDates) {
-            Date d = null;
+        List<LocalDate> holidaysDates = liftPassRepository.findAllHolidaysDates();
+        for (LocalDate holiday : holidaysDates) {
             try {
-                d = ISO_FORMAT.parse(date);
+                Date d = ISO_FORMAT.parse(date);
+                LocalDate dataAsLocalDate = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                if(holiday.isEqual(dataAsLocalDate))  return true;
             } catch (ParseException e) {
                 e.printStackTrace();
-            }
-//            if(d.compareTo(holiday) == 0)  return true;
-
-            if (d.getYear() == holiday.getYear() && //
-                    d.getMonth() == holiday.getMonth() && //
-                    d.getDate() == holiday.getDate()) {
-                return true;
             }
         }
         return false;

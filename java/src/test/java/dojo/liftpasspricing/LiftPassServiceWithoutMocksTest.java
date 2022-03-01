@@ -4,9 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,16 +11,15 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
 
 public class LiftPassServiceWithoutMocksTest {
 
     private LiftPassService liftPassService;
-    private DummyRepository repository;
+    private LiftPassRepository repository;
 
     @BeforeEach
     void setUp() {
-        repository = new DummyRepository();
+        repository = new InMemoryLiftPassRepository();
         liftPassService = new LiftPassService(repository);
     }
 
@@ -31,7 +27,7 @@ public class LiftPassServiceWithoutMocksTest {
     void should_add_liftpass() {
         var liftPass = new LiftPass(10, "1hour");
         liftPassService.add(liftPass);
-        List<LiftPass> liftPasses = repository.getLastInserted();
+        List<LiftPass> liftPasses = getLastInserted();
         assertEquals(1, liftPasses.size());
     }
 
@@ -116,29 +112,8 @@ public class LiftPassServiceWithoutMocksTest {
         }
     }
 
-    private static class DummyRepository extends LiftPassRepository {
-        private final List<LiftPass> liftPasses = new ArrayList<>();
-        @Override
-        public void add(LiftPass liftPass) {
-            liftPasses.add(liftPass);
-        }
-
-        @Override
-        public LiftPass findBaseByPrice(String type) {
-            return liftPasses.get(0);
-        }
-
-        @Override
-        public List<Date> findAllHolidaysDates() {
-            Calendar calendar = Calendar.getInstance();
-            try {
-                calendar.setTime(new SimpleDateFormat("yyyy-MM-dd").parse("2022-02-22"));
-            } catch (ParseException e) { e.printStackTrace(); }
-            return Collections.singletonList(calendar.getTime());
-        }
-
-        public List<LiftPass> getLastInserted() {
-            return liftPasses;
-        }
+    private List<LiftPass> getLastInserted() {
+        return ((InMemoryLiftPassRepository) repository).getLastInserted();
     }
+
 }
