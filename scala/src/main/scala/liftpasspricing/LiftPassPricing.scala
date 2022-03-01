@@ -37,7 +37,7 @@ class LiftPassPricing extends HttpApp with JsonSupport {
         val result = costStatement.executeQuery()
         result.next()
 
-        if (Try(req("age").toInt < 6).getOrElse(false)) {
+        if (Try(req("customerAge").toInt < 6).getOrElse(false)) {
           complete(Cost(0))
         } else {
           if (req("type") != "night") {
@@ -65,14 +65,14 @@ class LiftPassPricing extends HttpApp with JsonSupport {
             }
 
             // TODO apply reduction for others
-            if (Try(req("age").toInt < 15).getOrElse(false)) {
+            if (Try(req("customerAge").toInt < 15).getOrElse(false)) {
               complete(Cost(math.ceil(result.getInt("cost") * .7).toInt))
             } else {
-              if (!req.contains("age")) {
+              if (!req.contains("customerAge")) {
                 val cost = result.getInt("cost") * (1 - reduction / 100d)
                 complete(Cost(math.ceil(cost).toInt))
               } else {
-                if (Try(req("age").toInt > 64).getOrElse(false)) {
+                if (Try(req("customerAge").toInt > 64).getOrElse(false)) {
                   val cost = result.getInt("cost") * .75 * (1 - reduction / 100d)
                   complete(Cost(math.ceil(cost).toInt))
                 } else {
@@ -82,8 +82,8 @@ class LiftPassPricing extends HttpApp with JsonSupport {
               }
             }
           } else {
-            if (Try(req("age").toInt >= 6).getOrElse(false)) {
-              if (Try(req("age").toInt > 64).getOrElse(false)) {
+            if (Try(req("customerAge").toInt >= 6).getOrElse(false)) {
+              if (Try(req("customerAge").toInt > 64).getOrElse(false)) {
                 complete(Cost(math.ceil(result.getInt("cost") * .4).toInt))
               } else {
                 complete(Cost(result.getInt("cost")))

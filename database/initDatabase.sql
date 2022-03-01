@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS lift_pass.base_price (
     PRIMARY KEY (pass_id),
     UNIQUE KEY (type)
 );
-INSERT INTO lift_pass.base_price (type, cost) VALUES ('1jour', 35);
+INSERT INTO lift_pass.base_price (type, cost) VALUES ('1hour', 35);
 INSERT INTO lift_pass.base_price (type, cost) VALUES ('night', 19);
 
 CREATE TABLE IF NOT EXISTS lift_pass.holidays (

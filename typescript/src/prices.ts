@@ -23,7 +23,7 @@ async function createApp() {
             'WHERE `type` = ? ',
             [req.query.type]))[0][0]
 
-        if (req.query.age < 6) {
+        if (req.query.customerAge < 6) {
             res.json({cost: 0})
         } else {
             if (req.query.type !== 'night') {
@@ -52,14 +52,14 @@ async function createApp() {
                 }
 
                 // TODO apply reduction for others
-                if (req.query.age < 15) {
+                if (req.query.customerAge < 15) {
                     res.json({cost: Math.ceil(result.cost * .7)})
                 } else {
-                    if (req.query.age === undefined) {
+                    if (req.query.customerAge === undefined) {
                         let cost = result.cost * (1 - reduction / 100)
                         res.json({cost: Math.ceil(cost)})
                     } else {
-                        if (req.query.age > 64) {
+                        if (req.query.customerAge > 64) {
                             let cost = result.cost * .75 * (1 - reduction / 100)
                             res.json({cost: Math.ceil(cost)})
                         } else {
@@ -69,8 +69,8 @@ async function createApp() {
                     }
                 }
             } else {
-                if (req.query.age >= 6) {
-                    if (req.query.age > 64) {
+                if (req.query.customerAge >= 6) {
+                    if (req.query.customerAge > 64) {
                         res.json({cost: Math.ceil(result.cost * .4)})
                     } else {
                         res.json(result)
