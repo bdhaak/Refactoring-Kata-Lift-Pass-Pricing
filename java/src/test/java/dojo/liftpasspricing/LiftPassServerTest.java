@@ -7,10 +7,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import spark.Request;
 import spark.RequestResponseFactory;
-import spark.Response;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -22,9 +20,6 @@ class LiftPassServerTest {
     @Mock
     private HttpServletRequest httpServletRequest;
 
-    @Mock
-    private HttpServletResponse httpServletResponse;
-
     private LiftPassServer liftPassServer;
 
     @BeforeEach
@@ -34,8 +29,7 @@ class LiftPassServerTest {
         when(httpServletRequest.getParameter("cost")).thenReturn("100");
         when(httpServletRequest.getParameter("type")).thenReturn("1hour");
         Request request = RequestResponseFactory.create(httpServletRequest);
-        Response response = RequestResponseFactory.create(httpServletResponse);
-        liftPassServer.putPrice(request, response);
+        liftPassServer.putPrice(request);
     }
 
     @Test

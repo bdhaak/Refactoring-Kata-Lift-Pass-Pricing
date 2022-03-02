@@ -25,7 +25,7 @@ class LiftPassServerWithoutMocksTest {
     void setUp() {
         liftPassServer = LiftPassServer.nullable();
         // Hint: Look at LiftPassResponse
-        liftPassServer.putPrice(null, null); // TODO: Fix me first
+        liftPassServer.putPrice(null); // TODO: Fix me first
     }
 
     @Test
@@ -39,6 +39,7 @@ class LiftPassServerWithoutMocksTest {
         // age = 18
         // type=1hour
         // date=empty
+        // hint: req.params()
         String response = liftPassServer.getPrice(null); // TODO: Fix me third
         assertEquals("{ \"cost\": 100}", response);
     }

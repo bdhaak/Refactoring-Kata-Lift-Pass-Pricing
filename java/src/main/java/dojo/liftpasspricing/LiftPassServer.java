@@ -4,9 +4,11 @@ import dojo.liftpasspricing.domain.CustomerAge;
 import dojo.liftpasspricing.domain.InvalidCustomerAgeException;
 import dojo.liftpasspricing.domain.LiftPass;
 import dojo.liftpasspricing.domain.LiftPassPrice;
+import dojo.liftpasspricing.infrastructure.HttpErrorResponse;
+import dojo.liftpasspricing.infrastructure.LiftServerResponse;
+import dojo.liftpasspricing.infrastructure.HttpPriceResponse;
 import dojo.liftpasspricing.service.LiftPassService;
 import spark.Request;
-import spark.Response;
 import spark.Spark;
 
 import static spark.Spark.*;
@@ -37,8 +39,15 @@ public final class LiftPassServer {
         int assignedServerPort = port == 0 ? DEFAULT_SERVER_PORT : port;
         Spark.port(assignedServerPort);
 
-        put("/prices", (req, res) -> putPrice(req, res));
-        get("/prices", (req, res) -> getPrice(req));
+        put("/prices", (req, res) -> {
+            LiftServerResponse response = putPrice(req);
+            res.status(response.statusCode());
+            return response;
+        });
+        get("/prices", (req, res) -> {
+            String response = getPrice(req);
+            return response;
+        });
         after((req, res) -> res.type(APPLICATION_JSON));
 
         System.out.printf(">>> LiftPassPricing Api started on %d%n", assignedServerPort);
@@ -51,25 +60,24 @@ public final class LiftPassServer {
         String type = req.queryParams("type");
         String date = req.queryParams("date");
 
-        LiftPassResponse response;
+        LiftServerResponse response;
         try {
             LiftPassPrice price = liftPassService.getLiftPassPrice(new CustomerAge(age), type, date);
-            response = new PriceResponse(price);
+            response = new HttpPriceResponse(price);
         } catch (InvalidCustomerAgeException e) {
-            response = new ErrorResponse(e);
+            response = new HttpErrorResponse(e);
         }
         return response.toJSON();
     }
 
-    public String putPrice(Request req, Response res) {
+    public LiftServerResponse putPrice(Request req) {
         int liftPassCost = Integer.parseInt(req.queryParams("cost"));
         String liftPassType = req.queryParams("type");
 
         LiftPass liftPass = new LiftPass(liftPassCost, liftPassType);
         liftPassService.add(liftPass);
 
-        res.status(201);
-        return PriceResponse.EMPTY;
+        return LiftServerResponse.EMPTY;
     }
 
     public void stop() {
@@ -77,34 +85,4 @@ public final class LiftPassServer {
         Spark.stop();
         Spark.awaitStop();
     }
-
-    interface LiftPassResponse{
-        String EMPTY = "";
-        String toJSON();
-    }
-
-    static class PriceResponse implements LiftPassResponse{
-        private final LiftPassPrice liftPassPrice;
-
-        public PriceResponse(LiftPassPrice liftPassPrice) {
-            this.liftPassPrice = liftPassPrice;
-        }
-
-        public String toJSON(){
-            return String.format("{ \"cost\": %d}", liftPassPrice.getCost());
-        }
-    }
-
-    static class ErrorResponse implements LiftPassResponse{
-        private final Throwable throwable;
-
-        public ErrorResponse(Throwable throwable) {
-            this.throwable = throwable;
-        }
-
-        public String toJSON(){
-            return String.format("{ \"error\": \"%s\"}", throwable.getMessage());
-        }
-    }
-
 }
