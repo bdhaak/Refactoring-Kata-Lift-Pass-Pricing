@@ -1,4 +1,4 @@
-package dojo.liftpasspricing;
+package dojo.liftpasspricing.domain;
 
 public final class LiftPass {
 

@@ -1,4 +1,6 @@
-package dojo.liftpasspricing;
+package dojo.liftpasspricing.infrastructure;
+
+import dojo.liftpasspricing.domain.LiftPass;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

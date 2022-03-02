@@ -1,6 +1,6 @@
-package dojo.liftpasspricing;
+package dojo.liftpasspricing.domain;
 
-public class CustomerAge {
+public final class CustomerAge {
 
     private final Integer age;
 

@@ -1,4 +1,6 @@
-package dojo.liftpasspricing;
+package dojo.liftpasspricing.infrastructure;
+
+import dojo.liftpasspricing.domain.LiftPass;
 
 import java.time.LocalDate;
 import java.util.List;

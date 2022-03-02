@@ -1,4 +1,4 @@
-package dojo.liftpasspricing;
+package dojo.liftpasspricing.domain;
 
 import java.util.stream.Stream;
 

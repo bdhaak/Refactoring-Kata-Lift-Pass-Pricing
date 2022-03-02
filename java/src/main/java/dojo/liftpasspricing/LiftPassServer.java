@@ -1,12 +1,17 @@
 package dojo.liftpasspricing;
 
+import dojo.liftpasspricing.domain.CustomerAge;
+import dojo.liftpasspricing.domain.InvalidCustomerAgeException;
+import dojo.liftpasspricing.domain.LiftPass;
+import dojo.liftpasspricing.domain.LiftPassPrice;
+import dojo.liftpasspricing.service.LiftPassService;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
 
 import static spark.Spark.*;
 
-public class LiftPassServer {
+public final class LiftPassServer {
 
     public static final int DEFAULT_SERVER_PORT = 4567;
     public static final String APPLICATION_JSON = "application/json";

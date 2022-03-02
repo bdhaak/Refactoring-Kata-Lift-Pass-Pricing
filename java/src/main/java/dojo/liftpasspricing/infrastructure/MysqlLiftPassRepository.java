@@ -1,5 +1,7 @@
-package dojo.liftpasspricing;
+package dojo.liftpasspricing.infrastructure;
 
+import dojo.liftpasspricing.Main;
+import dojo.liftpasspricing.domain.LiftPass;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;

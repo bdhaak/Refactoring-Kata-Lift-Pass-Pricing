@@ -1,8 +1,8 @@
-package dojo.liftpasspricing;
+package dojo.liftpasspricing.domain;
 
 import java.util.Objects;
 
-public class LiftPassPrice {
+public final class LiftPassPrice {
 
     public static final LiftPassPrice FREE = new LiftPassPrice(0);
 

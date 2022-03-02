@@ -1,4 +1,12 @@
-package dojo.liftpasspricing;
+package dojo.liftpasspricing.service;
+
+import dojo.liftpasspricing.domain.CustomerAge;
+import dojo.liftpasspricing.domain.InvalidCustomerAgeException;
+import dojo.liftpasspricing.domain.LiftPass;
+import dojo.liftpasspricing.domain.LiftPassPrice;
+import dojo.liftpasspricing.infrastructure.InMemoryLiftPassRepository;
+import dojo.liftpasspricing.infrastructure.LiftPassRepository;
+import dojo.liftpasspricing.infrastructure.MysqlLiftPassRepository;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -9,7 +17,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class LiftPassService {
+public final class LiftPassService {
 
     private static final DateFormat ISO_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
