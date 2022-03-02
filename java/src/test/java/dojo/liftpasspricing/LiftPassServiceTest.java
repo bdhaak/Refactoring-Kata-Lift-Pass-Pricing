@@ -48,7 +48,16 @@ public class LiftPassServiceTest {
     @Test
     void should_return_error_when_age_is_undefined()  {
         InvalidCustomerAgeException exception = assertThrows(InvalidCustomerAgeException.class, () -> {
-            liftPassService.getLiftPassPrice(new CustomerAge(null), "1hour", "2019-02-22");
+            liftPassService.getLiftPassPrice(new CustomerAge(null), null, null);
+        });
+
+        assertEquals(new InvalidCustomerAgeException("Invalid customer age"), exception);
+    }
+
+    @Test
+    void should_return_error_when_age_is_invalid()  {
+        InvalidCustomerAgeException exception = assertThrows(InvalidCustomerAgeException.class, () -> {
+            liftPassService.getLiftPassPrice(new CustomerAge(-20), null, null);
         });
 
         assertEquals(new InvalidCustomerAgeException("Invalid customer age"), exception);

@@ -19,8 +19,16 @@ public class LiftPassService {
 
     private final LiftPassRepository liftPassRepository;
 
+    public LiftPassService() {
+        this(new MysqlLiftPassRepository());
+    }
+
     public LiftPassService(LiftPassRepository liftPassRepository) {
         this.liftPassRepository = liftPassRepository;
+    }
+
+    public static LiftPassService nullable() {
+        return new LiftPassService(new InMemoryLiftPassRepository());
     }
 
     public void add(LiftPass liftPass) {
@@ -45,7 +53,7 @@ public class LiftPassService {
     }
 
     private void assertValidCustomerAge(CustomerAge customerAge) throws InvalidCustomerAgeException {
-        if(customerAge.isUndefined()){
+        if(customerAge.isInvalid()){
             throw new InvalidCustomerAgeException("Invalid customer age");
         }
     }

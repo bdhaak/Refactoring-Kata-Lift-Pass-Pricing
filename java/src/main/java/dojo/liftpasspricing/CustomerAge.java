@@ -20,7 +20,7 @@ public class CustomerAge {
         return age != null && age < 15;
     }
 
-    public boolean isUndefined() {
-        return age == null;
+    public boolean isInvalid() {
+        return age == null || age < 0;
     }
 }

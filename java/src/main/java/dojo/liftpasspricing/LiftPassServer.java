@@ -8,13 +8,13 @@ import static spark.Spark.*;
 
 public class LiftPassServer {
 
-    public static final int SERVER_PORT = 4567;
+    public static final int DEFAULT_SERVER_PORT = 4567;
     public static final String APPLICATION_JSON = "application/json";
 
     private final LiftPassService liftPassService;
 
     public LiftPassServer() {
-        this.liftPassService = new LiftPassService(new MysqlLiftPassRepository());
+        this(new LiftPassService());
     }
 
     private LiftPassServer(LiftPassService liftPassService) {
@@ -22,14 +22,14 @@ public class LiftPassServer {
     }
 
     public static LiftPassServer nullable() {
-        return new LiftPassServer(new LiftPassService(new InMemoryLiftPassRepository()));
+        return new LiftPassServer(LiftPassService.nullable());
     }
 
     public void start(int port) {
 
         System.out.println("Starting Server");
 
-        int assignedServerPort = port == 0 ? SERVER_PORT : port;
+        int assignedServerPort = port == 0 ? DEFAULT_SERVER_PORT : port;
         Spark.port(assignedServerPort);
 
         put("/prices", (req, res) -> putPrice(req, res));
