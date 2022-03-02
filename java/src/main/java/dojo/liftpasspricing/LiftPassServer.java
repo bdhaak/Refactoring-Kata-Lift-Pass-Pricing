@@ -33,12 +33,22 @@ public final class LiftPassServer {
     }
 
     public void start(int port) {
-
-        System.out.println("Starting Server");
-
         int assignedServerPort = port == 0 ? DEFAULT_SERVER_PORT : port;
-        Spark.port(assignedServerPort);
+        log("Starting Server");
 
+        configureServerPort(assignedServerPort);
+        configureHttpRoutes();
+
+        logf(">>> LiftPassPricing Api started on %d%n", assignedServerPort);
+        logf("you can open http://localhost:%d/prices?type=night&age=23&date=2019-02-18 in a navigator\n"
+                + "and you'll get the price of the list pass for the day.%n", assignedServerPort);
+    }
+
+    private void configureServerPort(int assignedServerPort) {
+        Spark.port(assignedServerPort);
+    }
+
+    private void configureHttpRoutes() {
         put("/prices", (req, res) -> {
             LiftServerResponse response = putPrice(req);
             res.status(response.statusCode());
@@ -49,10 +59,6 @@ public final class LiftPassServer {
             return response;
         });
         after((req, res) -> res.type(APPLICATION_JSON));
-
-        System.out.printf(">>> LiftPassPricing Api started on %d%n", assignedServerPort);
-        System.out.printf("you can open http://localhost:%d/prices?type=night&age=23&date=2019-02-18 in a navigator\n"
-                + "and you'll get the price of the list pass for the day.%n", assignedServerPort);
     }
 
     public String getPrice(Request req) {
@@ -81,8 +87,16 @@ public final class LiftPassServer {
     }
 
     public void stop() {
-        System.out.println("Stopping Server");
+        log("Stopping Server");
         Spark.stop();
         Spark.awaitStop();
+    }
+
+    private void log(String logStatement) {
+        System.out.println(logStatement);
+    }
+
+    private void logf(String logStatement, Object... args) {
+        System.out.printf(logStatement, args);
     }
 }
