@@ -15,7 +15,9 @@ public class LiftPassService {
 
     private static final double PERCENT_70 = .7;
     private static final double PERCENT_40 = .4;
-    public static final double PERCENT_75 = .75;
+    private static final double PERCENT_75 = .75;
+    private static final int NO_REDUCTION = 0;
+    private static final int PERCENT_35_REDUCTION = 35;
 
     private final LiftPassRepository liftPassRepository;
 
@@ -23,6 +25,7 @@ public class LiftPassService {
         this(new MysqlLiftPassRepository());
     }
 
+    @Deprecated // Only here for demo purposes. Can be removed.
     public LiftPassService(LiftPassRepository liftPassRepository) {
         this.liftPassRepository = liftPassRepository;
     }
@@ -47,9 +50,8 @@ public class LiftPassService {
         if (liftPass.isNightType()) {
             return calculateNightPrice(customerAge, liftPass);
         }
-        else {
-            return calculateDayPrice(customerAge, date, liftPass);
-        }
+
+        return calculateDayPrice(customerAge, date, liftPass);
     }
 
     private void assertValidCustomerAge(CustomerAge customerAge) throws InvalidCustomerAgeException {
@@ -63,19 +65,14 @@ public class LiftPassService {
 
         if (customerAge.isOlderThanSixtyFour()) {
             return new LiftPassPrice(costToInt(basePrice * PERCENT_40));
-        } else {
-            return new LiftPassPrice(basePrice);
         }
+        return new LiftPassPrice(basePrice);
     }
 
     private LiftPassPrice calculateDayPrice(CustomerAge customerAge, String date, LiftPass liftPass) {
-
         int basePrice = liftPass.getCost();
-
         int reduction = getReduction(date);
         double reductionPrice = (1 - reduction / 100.0);
-
-        int defaultDayPrice = costToInt(basePrice * reductionPrice);
 
         if (customerAge.isUnderFifteen()) {
             double cost = basePrice * PERCENT_70;
@@ -87,6 +84,7 @@ public class LiftPassService {
             return new LiftPassPrice(costToInt(cost));
         }
 
+        int defaultDayPrice = costToInt(basePrice * reductionPrice);
         return new LiftPassPrice(defaultDayPrice);
     }
 
@@ -95,9 +93,7 @@ public class LiftPassService {
     }
 
     private int getReduction(String date) {
-        int reduction = 0;
-
-        if(date == null) return reduction;
+        if(date == null) return NO_REDUCTION;
 
         Calendar calendar = Calendar.getInstance();
         try {
@@ -110,10 +106,10 @@ public class LiftPassService {
 
         // No holiday or if date is monday
         if (!isHoliday && calendar.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY) {
-            reduction = 35;
+            return PERCENT_35_REDUCTION;
         }
 
-        return reduction;
+        return NO_REDUCTION;
     }
 
     private boolean isHoliday(String date) {
