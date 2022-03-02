@@ -55,7 +55,7 @@ public class LiftPassServiceTest {
     }
 
     @Nested
-    @DisplayName("Tests for getting day time lift pass prices")
+    @DisplayName("Tests for getting night time lift pass prices")
     class NightTime {
         @Test
         void should_return_without_discount_when_age_is_under_64() throws InvalidCustomerAgeException{

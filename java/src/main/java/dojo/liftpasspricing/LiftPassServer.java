@@ -32,7 +32,7 @@ public class LiftPassServer {
         int assignedServerPort = port == 0 ? SERVER_PORT : port;
         Spark.port(assignedServerPort);
 
-        put("/prices", this::putPrice);
+        put("/prices", (req, res) -> putPrice(req, res));
         get("/prices", (req, res) -> getPrice(req));
         after((req, res) -> res.type(APPLICATION_JSON));
 

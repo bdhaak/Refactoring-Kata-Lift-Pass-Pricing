@@ -1,7 +1,6 @@
 package dojo.liftpasspricing;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -16,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-@Disabled("You can remove this annotation")
+
 @ExtendWith(MockitoExtension.class)
 class LiftPassServerTest {
 
@@ -26,7 +25,7 @@ class LiftPassServerTest {
     @Mock
     private HttpServletResponse httpServletResponse;
 
-    LiftPassServer liftPassServer;
+    private LiftPassServer liftPassServer;
 
     @BeforeEach
     void setUp() {
@@ -41,21 +40,27 @@ class LiftPassServerTest {
 
     @Test
     void should_return_error_message() {
+        // Arrange
         Request request = RequestResponseFactory.create(httpServletRequest);
 
+        // Act
         String response = liftPassServer.getPrice(request);
 
+        // Assert
         assertEquals("{ \"error\": \"Invalid customer age\"}", response);
     }
 
     @Test
     void should_return_full_price_when_age_is_18() {
+        // Arrange
         when(httpServletRequest.getParameter("age")).thenReturn("18");
         when(httpServletRequest.getParameter("type")).thenReturn("1hour");
-
         Request request = RequestResponseFactory.create(httpServletRequest);
+
+        // Act
         String response = liftPassServer.getPrice(request);
 
+        // Assert
         assertEquals("{ \"cost\": 100}", response);
     }
 }
