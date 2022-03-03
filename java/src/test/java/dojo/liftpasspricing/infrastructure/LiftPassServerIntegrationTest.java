@@ -1,7 +1,8 @@
-package dojo.liftpasspricing;
+package dojo.liftpasspricing.infrastructure;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import dojo.liftpasspricing.infrastructure.LiftPassServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;

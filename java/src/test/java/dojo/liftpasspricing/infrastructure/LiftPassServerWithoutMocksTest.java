@@ -1,20 +1,11 @@
-package dojo.liftpasspricing;
+package dojo.liftpasspricing.infrastructure;
 
+import dojo.liftpasspricing.infrastructure.LiftPassServer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import spark.Request;
-import spark.RequestResponseFactory;
-import spark.Response;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 
 @Disabled("Disable and make the test below pass")
 class LiftPassServerWithoutMocksTest {

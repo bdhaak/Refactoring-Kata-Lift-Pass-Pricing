@@ -1,13 +1,12 @@
-package dojo.liftpasspricing;
+package dojo.liftpasspricing.infrastructure;
 
 import dojo.liftpasspricing.domain.CustomerAge;
 import dojo.liftpasspricing.domain.InvalidCustomerAgeException;
 import dojo.liftpasspricing.domain.LiftPass;
 import dojo.liftpasspricing.domain.LiftPassPrice;
-import dojo.liftpasspricing.infrastructure.HttpErrorResponse;
-import dojo.liftpasspricing.infrastructure.LiftServerResponse;
-import dojo.liftpasspricing.infrastructure.HttpPriceResponse;
 import dojo.liftpasspricing.service.LiftPassService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Spark;
 
@@ -17,6 +16,8 @@ public final class LiftPassServer {
 
     public static final int DEFAULT_SERVER_PORT = 4567;
     public static final String APPLICATION_JSON = "application/json";
+
+    final Logger log = LoggerFactory.getLogger(LiftPassServer.class);
 
     private final LiftPassService liftPassService;
 
@@ -42,6 +43,12 @@ public final class LiftPassServer {
         logf(">>> LiftPassPricing Api started on %d%n", assignedServerPort);
         logf("you can open http://localhost:%d/prices?type=night&age=23&date=2019-02-18 in a navigator\n"
                 + "and you'll get the price of the list pass for the day.%n", assignedServerPort);
+    }
+
+    public void stop() {
+        log("Stopping Server");
+        Spark.stop();
+        Spark.awaitStop();
     }
 
     private void configureServerPort(int assignedServerPort) {
@@ -84,12 +91,6 @@ public final class LiftPassServer {
         liftPassService.add(liftPass);
 
         return LiftServerResponse.EMPTY;
-    }
-
-    public void stop() {
-        log("Stopping Server");
-        Spark.stop();
-        Spark.awaitStop();
     }
 
     private void log(String logStatement) {
